@@ -206,16 +206,16 @@ Before you submit on DoraHacks, do this (takes ~30-60 min once you have keys):
 2. **Deploy the web UI publicly to Vercel (recommended for submission)**
    - First, make sure your code is pushed to GitHub.
    - Go to https://vercel.com , "Add New Project", import your GitHub repo.
-   - **Important (monorepo setup)**:
-     - Root Directory: `web`  (point Vercel at the Next.js app folder so it detects "next" in package.json)
-     - Framework Preset: Next.js (Vercel will usually auto-detect)
-   - We have:
-     - `vercel.json` at the repo root (provides the full monorepo `npm install` via installCommand + tolerant build fallback)
-     - `web/vercel.json` (provides correct Next.js build/output when Root Directory = `web`)
-   - In the Vercel project settings you may need to explicitly set/override:
+   - **Important (monorepo setup for Next.js detection)**:
+     - Root Directory: `web` (this is required so Vercel sees the package.json that actually contains "next")
+     - Framework Preset: Next.js
+   - We added `web/vercel.json` which will be used when Root Directory = `web`:
+     - It sets the correct build and output for the Next.js app.
+   - The root `vercel.json` still provides `installCommand: "npm install"` (full monorepo or web deps depending on how Vercel runs it).
+   - If needed, override in UI:
      - Build Command: `npm run build`
      - Output Directory: `.next`
-   - Add Environment Variables (important for LIVE on-chain features):
+   - Add Environment Variables (important for LIVE on-chain):
      - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - Add Environment Variables (important for LIVE on-chain features):
      - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
