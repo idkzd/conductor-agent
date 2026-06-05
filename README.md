@@ -211,7 +211,7 @@ Before you submit on DoraHacks, do this (takes ~30-60 min once you have keys):
      - **Do NOT set Root Directory to `web`** — this is the #1 cause of the error `sh: cd: web: No such file or directory` during build.
      - Framework Preset: Next.js (Vercel will usually auto-detect)
    - We have `vercel.json` at the repo root that automatically configures everything correctly when Root Directory is `.`:
-     - Build Command: `npm run build:web`
+     - Build Command: `npm run build --workspace=web || npm run build` (tolerant to common misconfigurations)
      - Output Directory: `web/.next`
      - Install Command: `npm install` (required for the monorepo workspaces)
    - Add Environment Variables (important for LIVE on-chain features):
@@ -473,7 +473,8 @@ npm run deploy          # to Mantle mainnet
    - `cd agents && npm run register` (updates agent cards with real IDs on Mantle IdentityRegistry)
 
 3. **Deploy frontend publicly (Vercel)**:
-   - Connect repo to Vercel (Root Directory must be `.` — the repo root)
+   - Connect repo to Vercel
+   - **Set Root Directory to `.`** (the full repo root, not `web` — this is critical)
    - Set the env var `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS=0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - No LLM keys needed — the `/api/run-conductor` route is self-contained and works out of the box for judges and video.
 
