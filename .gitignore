@@ -1,0 +1,53 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# testing
+coverage/
+
+# next.js
+web/.next/
+web/out/
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+.envrc
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# hardhat
+contracts/cache/
+contracts/artifacts/
+contracts/coverage/
+contracts/coverage.json
+contracts/typechain/
+contracts/typechain-types/
+
+# agent temp
+agents/logs/
+agents/.cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp

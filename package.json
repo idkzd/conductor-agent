@@ -1,0 +1,44 @@
+{
+  "name": "conductor-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Conductor Agent — Multi-Agent Economy with On-Chain Trust (ERC-8004) for Mantle Turing Test Hackathon 2026",
+  "scripts": {
+    "dev": "concurrently -n web,agents \"npm run dev:web\" \"npm run dev:agents\"",
+    "dev:web": "cd web && npm run dev",
+    "dev:agents": "cd agents && npm run dev",
+    "build": "npm run build:web && npm run build:agents",
+    "build:web": "cd web && npm run build",
+    "build:agents": "cd agents && npm run build",
+    "deploy:contracts": "cd contracts && npx hardhat run scripts/deploy.ts --network mantle",
+    "deploy:contracts:testnet": "cd contracts && npx hardhat run scripts/deploy.ts --network mantleTestnet",
+    "register:agents": "cd agents && npm run register",
+    "demo:conductor": "cd agents && npm run demo",
+    "lint": "npm run lint:web",
+    "lint:web": "cd web && npm run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,sol}\""
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "web3",
+    "mantle",
+    "erc-8004",
+    "multi-agent",
+    "onchain",
+    "hackathon",
+    "defi",
+    "rwa"
+  ],
+  "author": "Conductor Team",
+  "license": "MIT",
+  "workspaces": [
+    "contracts",
+    "agents",
+    "web"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.4.2"
+  }
+}

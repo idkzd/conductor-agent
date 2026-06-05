@@ -1,0 +1,21 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Trading Executor",
+  "description": "Specialized execution agent for Mantle. Deep expertise in Merchant Moe LB (LBFactory 0xa6630671..., LBRouter 0x013e13...), mETH (0xcDA86A27... on Mantle), concentrated liquidity positioning, slippage modeling, and low-gas execution. Receives delegated tasks, performs on-chain research via LB quoter + pool reads, and returns precise, auditable actions.",
+  "image": "https://conductor-agent.vercel.app/icon-executor.png",
+  "services": [{ "name": "web", "endpoint": "https://conductor-agent.vercel.app" }],
+  "capabilities": {
+    "tasks": ["mETH_execution", "Moe_LB_liquidity", "swap_optimization", "slippage_research", "opportunity_cost_analysis"],
+    "dexes": ["Merchant Moe Liquidity Book (LB 2.2)"],
+    "assets": ["mETH (0xcDA86A272531e8640cD7F1a92c01839911B90bb0)", "WETH", "USDT"],
+    "chains": ["eip155:5000"],
+    "research_endpoints": ["LBFactory.getNumberOfLBPairs + getLBPairInformation", "direct RPC for depth"],
+    "integrations": ["mantle-agent-kit-sdk (merchantMoeSwap + Pyth)", "erc-8004 Reputation (moe-exec tag)", "DecisionLogger", "portfolio-logic (for liquidityScore impact)"],
+    "delivers": "executable mETH core plan + slippage numbers + service for fee recording"
+  },
+  "a2a": {
+    "skills": [{ "id": "mETH_execution_analysis", "name": "mETH Moe Execution Plan", "description": "Feasibility, slippage, LB ranges for mETH weight.", "examples": ["analyze execution for 63% mETH"] }]
+  }
+  "agentWallet": "0x0000000000000000000000000000000000000000",
+  "registrations": []
+}

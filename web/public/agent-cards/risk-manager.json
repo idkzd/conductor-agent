@@ -1,0 +1,38 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Risk Manager",
+  "description": "Strict risk and liquidity gatekeeper for the Conductor economy. Re-validates proposed allocations using deterministic portfolio-logic (estimateRisk, validateAllocation with liquidityScore). Rejects proposals that breach user risk cap or liquidity gates. Suggests safe adjustments. Essential for on-chain trust and anti-risk hallucination.",
+  "image": "https://conductor-agent.vercel.app/icon-risk.png",
+  "services": [
+    { "name": "web", "endpoint": "https://conductor-agent.vercel.app" }
+  ],
+  "capabilities": {
+    "tasks": ["risk_validation", "dd_simulation", "liquidity_gates", "allocation_rejection", "REVISE_proposal", "final_gate"],
+    "protocols": ["mETH + USDY on Mantle", "Merchant Moe LB"],
+    "chains": ["eip155:5000"],
+    "research_sources": ["live yields + block from Researcher (4)", "portfolio-logic: estimateRisk, validateAllocation, suggestSafeAllocation (same functions Conductor uses)"],
+    "integrations": ["erc-8004 Identity + Reputation (tag: risk-gate)", "DecisionLogger (own decisions + metrics logged)", "Conductor orchestration"],
+    "functions_called": ["estimateRisk", "validateAllocation"],
+    "reputation_tags": ["risk-gate", "yield-risk-liquidity"]
+  },
+  "a2a": {
+    "protocolVersion": "1.0",
+    "url": "internal://conductor-orchestra/risk-manager",
+    "version": "1.0",
+    "capabilities": { "streaming": false, "pushNotifications": false },
+    "defaultInputModes": ["data"],
+    "defaultOutputModes": ["data"],
+    "skills": [
+      {
+        "id": "risk_gate_validation",
+        "name": "Independent Risk Gate + REVISE",
+        "description": "Re-runs portfolio-logic gates on proposed allocation. Returns APPROVE or safe REVISE with exact metrics.",
+        "examples": ["validate 42% USDY under 7% cap", "force safer allocation if DD breach"],
+        "inputModes": ["data"],
+        "outputModes": ["data"]
+      }
+    ]
+  }
+  "agentWallet": "0x0000000000000000000000000000000000000000",
+  "registrations": []
+}

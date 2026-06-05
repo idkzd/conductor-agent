@@ -1,0 +1,20 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "RWA Optimizer",
+  "description": "Risk-aware RWA yield specialist. Primary focus: Ondo USDY on Mantle (token 0x5bE26527e817998A7206475496fDE1E68957c5A6, accumulating yield via redemption price, current ~4.65% per Ondo research). Performs correlation analysis vs mETH, liquidity depth on Moe LB, credit/issuer risk assessment, and hard risk-budget allocation sizing. Always cites live research numbers.",
+  "image": "https://conductor-agent.vercel.app/icon-rwa.png",
+  "services": [{ "name": "web", "endpoint": "https://conductor-agent.vercel.app" }],
+  "capabilities": {
+    "tasks": ["USDY_allocation", "RWA_risk_modeling", "portfolio_rebalancing_under_constraint", "yield_uplift_quantification"],
+    "rwAs": ["USDY (Ondo) — 0x5bE26527e817998A7206475496fDE1E68957c5A6"],
+    "protocols": ["Ondo Finance", "Merchant Moe LB"],
+    "chains": ["eip155:5000"],
+    "research_sources": ["live USDY APY + Moe depth from Researcher (4) + portfolio-logic"],
+    "integrations": ["mantle-agent-kit-sdk", "erc-8004 Reputation (rwa-risk)", "DecisionLogger", "portfolio-logic (calculateBlendedAPY, diversificationBenefit)"]
+  },
+  "a2a": {
+    "skills": [{ "id": "usdy_rwa_sizing", "name": "USDY Risk-Adjusted Sizing", "description": "Propose USDY % with uplift math under risk cap.", "examples": ["size USDY for 7% cap goal"] }]
+  }
+  "agentWallet": "0x0000000000000000000000000000000000000000",
+  "registrations": []
+}

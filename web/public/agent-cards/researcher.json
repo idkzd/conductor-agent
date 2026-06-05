@@ -1,0 +1,41 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Researcher",
+  "description": "Live on-chain and protocol research agent for Mantle DeFi. Fetches real-time data from mETH LSP, Ondo USDY, Merchant Moe LBFactory, Pyth oracles via mantle-agent-kit-sdk when available. Provides fresh yields, supply, liquidity metrics, block proofs for Conductor and other agents. Always cites sources.",
+  "image": "https://conductor-agent.vercel.app/icon-researcher.png",
+  "services": [
+    { "name": "web", "endpoint": "https://conductor-agent.vercel.app" }
+  ],
+  "capabilities": {
+    "tasks": ["live_research", "onchain_data_fetch", "pyth_prices", "moe_liquidity", "supply_proof", "block_citation"],
+    "protocols": ["mETH Protocol (LSP)", "Ondo USDY", "Merchant Moe LB 2.2", "Pyth Network"],
+    "chains": ["eip155:5000"],
+    "research_sources": [
+      "on-chain RPC (symbol, decimals, totalSupply, getBlockNumber, LBFactory.getNumberOfLBPairs)",
+      "Pyth oracles via mantle-agent-kit-sdk (pythGetTokenPrice)",
+      "protocol docs + observed yields"
+    ],
+    "integrations": ["mantle-agent-kit-sdk", "erc-8004 Identity+Reputation", "DecisionLogger (via Conductor)", "portfolio-logic (yields injection)"],
+    "delivers_to": ["Conductor", "Risk Manager", "RWA Optimizer", "Trading Executor"]
+  },
+  "a2a": {
+    "protocolVersion": "1.0",
+    "url": "internal://conductor-orchestra/researcher",
+    "version": "1.0",
+    "capabilities": { "streaming": false, "pushNotifications": false, "stateTransitionHistory": true },
+    "defaultInputModes": ["text", "data"],
+    "defaultOutputModes": ["text", "data"],
+    "skills": [
+      {
+        "id": "fetch_live_mantle_research",
+        "name": "Fetch Live Mantle Research Packet",
+        "description": "Returns block, yields, Pyth prices, Moe pairs, supply proofs for mETH/USDY.",
+        "examples": ["get fresh on-chain data for 7% risk mETH USDY goal", "research Moe liquidity at current block"],
+        "inputModes": ["text"],
+        "outputModes": ["data"]
+      }
+    ]
+  }
+  "agentWallet": "0x0000000000000000000000000000000000000000",
+  "registrations": []
+}

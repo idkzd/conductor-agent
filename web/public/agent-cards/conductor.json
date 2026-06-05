@@ -1,0 +1,30 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Conductor",
+  "description": "Central orchestrator for transparent multi-agent DeFi economy on Mantle. Accepts high-level goals (e.g. 'optimize yield on mETH+USDY with ≤7% risk'), performs live research against real endpoints (mETH LSP, Ondo USDY oracle/docs, Merchant Moe LBFactory 0xa6630671775c4EA2743840F9A5016dCf2A104054), delegates to ERC-8004 sub-agents, and writes every reasoning step + action to DecisionLogger. Full auditability for users and judges.",
+  "image": "https://conductor-agent.vercel.app/icon-conductor.png",
+  "services": [
+    { "name": "web", "endpoint": "https://conductor-agent.vercel.app" },
+    { "name": "A2A", "endpoint": "https://conductor-agent.vercel.app/api/a2a", "version": "0.1.0" }
+  ],
+  "capabilities": {
+    "tasks": ["portfolio_optimization", "multi_agent_orchestration", "onchain_decision_logging", "risk_aware_RWA_allocation", "inter_agent_service_economy", "reputation_orchestration"],
+    "protocols": ["Merchant Moe Liquidity Book", "mETH Protocol (LSP)", "Ondo USDY"],
+    "chains": ["eip155:5000"],
+    "research_sources": ["live from Researcher (4) + direct RPC + Pyth via mantle-agent-kit-sdk"],
+    "integrations": ["mantle-agent-kit-sdk", "erc-8004 full (Identity + Reputation + Validation)", "DecisionLogger (rich metrics, service payments, parent chains, reasoningHash)", "portfolio-logic (ground truth for all 5 agents)", "8004scan", "A2A protocol (handoffs + Agent Cards)"]
+  },
+  "a2a": {
+    "protocolVersion": "1.0",
+    "url": "internal://conductor-orchestra",
+    "version": "1.0",
+    "capabilities": { "streaming": false, "pushNotifications": true, "stateTransitionHistory": true },
+    "defaultInputModes": ["text"],
+    "defaultOutputModes": ["text", "data"],
+    "skills": [
+      { "id": "orchestrate_portfolio", "name": "Run 5-Agent Orchestra", "description": "Decompose goal, delegate via A2A-style, log to DecisionLogger, post reputation, return verified allocation.", "examples": ["optimize mETH USDY risk<=7%"], "inputModes": ["text"], "outputModes": ["data"] }
+    ]
+  }
+  "agentWallet": "0x0000000000000000000000000000000000000000",
+  "registrations": []
+}
