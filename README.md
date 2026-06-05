@@ -206,14 +206,17 @@ Before you submit on DoraHacks, do this (takes ~30-60 min once you have keys):
 2. **Deploy the web UI publicly to Vercel (recommended for submission)**
    - First, make sure your code is pushed to GitHub.
    - Go to https://vercel.com , "Add New Project", import your GitHub repo.
-   - **Important (monorepo gotcha)**:
-     - Root Directory: `.` (the root of the full repository)
-     - **Do NOT set Root Directory to `web`** — this is the #1 cause of the error `sh: cd: web: No such file or directory` during build.
+   - **Important (monorepo setup)**:
+     - Root Directory: `web`  (point Vercel at the Next.js app folder so it detects "next" in package.json)
      - Framework Preset: Next.js (Vercel will usually auto-detect)
-   - We have `vercel.json` at the repo root that automatically configures everything correctly when Root Directory is `.`:
-     - Build Command: `npm run build --workspace=web || npm run build` (tolerant to common misconfigurations)
-     - Output Directory: `web/.next`
-     - Install Command: `npm install` (required for the monorepo workspaces)
+   - We have:
+     - `vercel.json` at the repo root (provides the full monorepo `npm install` via installCommand + tolerant build fallback)
+     - `web/vercel.json` (provides correct Next.js build/output when Root Directory = `web`)
+   - In the Vercel project settings you may need to explicitly set/override:
+     - Build Command: `npm run build`
+     - Output Directory: `.next`
+   - Add Environment Variables (important for LIVE on-chain features):
+     - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - Add Environment Variables (important for LIVE on-chain features):
      - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - Deploy.
@@ -474,7 +477,10 @@ npm run deploy          # to Mantle mainnet
 
 3. **Deploy frontend publicly (Vercel)**:
    - Connect repo to Vercel
-   - **Set Root Directory to `.`** (the full repo root, not `web` — this is critical)
+   - Set Root Directory to `web`
+   - (Optional but recommended) Override in settings:
+     - Build Command: `npm run build`
+     - Output Directory: `.next`
    - Set the env var `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS=0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - No LLM keys needed — the `/api/run-conductor` route is self-contained and works out of the box for judges and video.
 
