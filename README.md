@@ -206,19 +206,21 @@ Before you submit on DoraHacks, do this (takes ~30-60 min once you have keys):
 2. **Deploy the web UI publicly to Vercel (recommended for submission)**
    - First, make sure your code is pushed to GitHub.
    - Go to https://vercel.com , "Add New Project", import your GitHub repo.
-   - In the import settings:
-     - Framework Preset: Next.js
-     - Root Directory: leave as `.` (root of monorepo) or set to `web` (both can work)
-     - Build Command: `cd web && npm run build`   (if Root is . )
+   - **Important (monorepo gotcha)**:
+     - Root Directory: `.` (the root of the full repository)
+     - **Do NOT set Root Directory to `web`** — this is the #1 cause of the error `sh: cd: web: No such file or directory` during build.
+     - Framework Preset: Next.js (Vercel will usually auto-detect)
+   - We have `vercel.json` at the repo root that automatically configures everything correctly when Root Directory is `.`:
+     - Build Command: `npm run build:web`
      - Output Directory: `web/.next`
-   - We have added `vercel.json` in root to make this automatic.
-   - Add Environment Variables (important for LIVE on-chain):
-     - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807` (or your mainnet address)
+     - Install Command: `npm install` (required for the monorepo workspaces)
+   - Add Environment Variables (important for LIVE on-chain features):
+     - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - Deploy.
    - After deploy, copy the production URL (e.g. `https://conductor-yourname.vercel.app`).
    - Update your README and Dora submission with this public URL.
 
-   Note: The address is already hardcoded in `web/lib/contracts.ts` as default, but using the env var is better for future deploys.
+   Note: The address is already the default in `web/lib/contracts.ts`, but explicitly setting the env var is cleaner for future redeploys and makes `IS_LIVE_ONCHAIN` clearly true.
 
 3. **Record the video (≥2 min)**
    Use the exact script in the "HACKATHON SUBMISSION READINESS" section below. Show the full flow + on-chain proof + export.
@@ -471,9 +473,9 @@ npm run deploy          # to Mantle mainnet
    - `cd agents && npm run register` (updates agent cards with real IDs on Mantle IdentityRegistry)
 
 3. **Deploy frontend publicly (Vercel)**:
-   - Connect repo to Vercel
-   - Set env vars if using real LLM (ANTHROPIC_API_KEY etc.)
-   - The /api/run-conductor will work out of the box for judges.
+   - Connect repo to Vercel (Root Directory must be `.` — the repo root)
+   - Set the env var `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS=0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
+   - No LLM keys needed — the `/api/run-conductor` route is self-contained and works out of the box for judges and video.
 
 4. **Video demo tip**:
    - Use a strong goal like "Optimize my portfolio yield with risk no higher than 6.5%, with strong focus on mETH and USDY"
