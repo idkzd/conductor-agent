@@ -188,6 +188,10 @@ export default function ConductorControlCenter() {
   // Live on-chain verification (client-side viem read from DecisionLogger when address is configured)
   const [onchainLedger, setOnchainLedger] = useState<Array<Record<string, unknown>> | null>(null);
   const [isFetchingLedger, setIsFetchingLedger] = useState(false);
+
+  // Usability improvement: the detailed agent trace, hierarchy and long logs are powerful for judges/auditors,
+  // but make the page feel heavy for normal users. Hide by default, reveal on demand.
+  const [showDetailedTrace, setShowDetailedTrace] = useState(false);
   const [lastRunResponse, setLastRunResponse] = useState<Record<string, unknown> | null>(null); // for livePrices etc from API
 
   const latestDecisions = [...decisions].sort((a, b) => b.timestamp - a.timestamp);
@@ -548,20 +552,9 @@ Explorer: ${MANTLESCAN}/tx/${fakeTx.replace('...', '')}`;
         <ResearchBar lastRunResponse={lastRunResponse} computedAllocation={lastAllocation} localAllocation={localAllocation} customRiskCap={customRiskCap} />
 
         {/* Live Project Status - top team dashboard feel */}
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#0F1012] px-5 py-3 text-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              <span className="font-medium text-emerald-400">LIVE ON MANTLE MAINNET</span>
-            </div>
-            <div className="text-white/50">•</div>
-            <div><span className="font-mono text-white/80">5</span> ERC-8004 Agents Registered</div>
-            <div className="text-white/50">•</div>
-            <div><span className="font-mono text-white/80">{onchainCount}</span> On-Chain Proofs</div>
-          </div>
-          <div className="text-xs text-white/40">
-            v1.0-hackathon-ready • mantle-agent-kit-sdk (live Pyth prices) + ERC-8004 Reputation (all agents) • DecisionLogger • 8004scan
-          </div>
+        <div className="mb-6 text-[11px] text-white/50 flex items-center gap-3 border-b border-white/10 pb-3">
+          <span className="text-emerald-400">● LIVE ON MANTLE</span>
+          <span>5 ERC-8004 agents • {onchainCount} on-chain proofs • real SDK + deterministic logic</span>
         </div>
 
         <div id="control" className="card p-10 mb-9">
@@ -783,44 +776,28 @@ Explorer: ${MANTLESCAN}/tx/${fakeTx.replace('...', '')}`;
             )}
           </div>
 
-          {runSteps.length > 0 && (
+          {/* Usability: the full detailed trace (logs, hierarchy, timeline) is very rich for judges but makes the page feel heavy.
+              By default we keep focus on the useful things: ResearchBar comparison + recommendation + instant what-if planner.
+              Advanced trace is one click away. */}
+          <button
+            onClick={() => setShowDetailedTrace(!showDetailedTrace)}
+            className="mt-4 w-full text-xs py-2 rounded-xl border border-white/10 hover:bg-white/5 text-white/60 flex items-center justify-center gap-2"
+          >
+            {showDetailedTrace ? 'Hide' : 'Show'} detailed agent trace, hierarchy & full execution log (for auditors & judges)
+            <span className="text-[10px] px-1.5 py-px bg-white/5 rounded">ADVANCED</span>
+          </button>
+
+          {showDetailedTrace && runSteps.length > 0 && (
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-4">
               <div className="text-xs uppercase tracking-widest text-white/50 mb-3 px-1">CONDUCTOR EXECUTION FLOW</div>
               <ProgressSteps steps={runSteps} />
             </div>
           )}
 
-          <ExecutionLog logs={executionLog} isRunning={isRunning} />
+          {showDetailedTrace && <ExecutionLog logs={executionLog} isRunning={isRunning} />}
         </div>
 
-        {/* Live Logic Trace - demonstrates the improved deterministic logic */}
-        {latestDecisions.length > 0 && !isRunning && (
-          <div className="mb-9 p-5 rounded-2xl bg-[#0B0C0E] border border-white/10 text-sm">
-            <div className="font-medium text-emerald-400 mb-2 flex items-center gap-2">
-              DETERMINISTIC PORTFOLIO LOGIC (portfolio-logic.ts)
-            </div>
-            <div className="text-white/70 text-xs leading-relaxed">
-              Risk cap extracted from goal → <span className="font-mono text-emerald-300">suggestSafeAllocation()</span> → <span className="font-mono text-emerald-300">validateAllocation()</span> + <span className="font-mono text-emerald-300">estimateRisk()</span>.<br />
-              The same pure functions are used in the real Conductor (agents) and this demo. All weights and metrics in the decisions above come from this logic.<br />
-              Research phase performs <span className="font-mono text-emerald-300">live RPC reads + Pyth via mantle-agent-kit-sdk</span> (token metadata, supply, block, prices) on Mantle for verifiable &quot;live research&quot;.
-            </div>
-
-            {/* Visual allocation from the improved logic */}
-            {lastAllocation && (
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <div className="flex justify-between text-[10px] text-white/50 mb-1">
-                  <div>mETH {lastAllocation.meth}%</div>
-                  <div>USDY {lastAllocation.usdy}%</div>
-                </div>
-                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden flex">
-                  <div className="bg-[#60A5FA]" style={{width: `${lastAllocation.meth}%`}}></div>
-                  <div className="bg-[#22C55E]" style={{width: `${lastAllocation.usdy}%`}}></div>
-                </div>
-                <div className="text-[10px] text-white/40 mt-1">APY {lastAllocation.apy}% • DD {lastAllocation.dd}% (validated by portfolio-logic)</div>
-              </div>
-            )}
-          </div>
-        )}
+        {/* The detailed explanation of the logic is now only in the README and in the exported JSON (keeps the UI lighter). */}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-9">
           <AgentHierarchy 
@@ -861,15 +838,13 @@ Explorer: ${MANTLESCAN}/tx/${fakeTx.replace('...', '')}`;
             </div>
 
             {/* WHY USEFUL - prominent, honest value prop. This is what makes the project genuinely useful, not just a demo. */}
-            <div className="mb-4 p-3 rounded-xl border border-white/10 bg-[#111213] text-xs text-white/70">
-              <div className="font-medium text-white/90 mb-1">Why Conductor is practically useful</div>
-              <ul className="list-disc pl-4 space-y-0.5">
-                <li><strong>Verifiable decisions:</strong> Every number comes from deterministic math + live on-chain/SDK data. No black box.</li>
-                <li><strong>Audit-ready output:</strong> The JSON export is a complete report you can share with DAOs, auditors, or use for your own records. Includes sources, formulas, and on-chain verification steps.</li>
-                <li><strong>Client-side what-if tool:</strong> Tweak risk cap above and recompute instantly (pure logic, no cost). Use it to plan before delegating to agents.</li>
-                <li><strong>Agent economy foundation:</strong> Reputation feedback + service fees logged on-chain. Basis for real agents paying each other for useful work.</li>
-                <li><strong>Future execution path:</strong> The same mantle-agent-kit-sdk used for research can execute real swaps on Moe when you connect a wallet.</li>
-              </ul>
+            <div className="mb-4 p-3 rounded-xl border border-white/10 bg-[#111213] text-[11px] text-white/70">
+              <div className="font-medium text-white/90 mb-1">Why this is useful for a real mETH + USDY holder</div>
+              <div className="space-y-0.5">
+                • Numbers come from pure math + live SDK data (not LLM guesses)<br />
+                • Instant what-if planner above uses the exact same logic the agents use<br />
+                • One-click export gives you a full verifiable audit (sources, formulas, on-chain steps)
+              </div>
             </div>
 
             <div className="mt-auto">
