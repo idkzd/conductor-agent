@@ -219,6 +219,7 @@ Before you submit on DoraHacks, do this (takes ~30-60 min once you have keys):
      - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
    - Add Environment Variables (important for LIVE on-chain features):
      - `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS` = `0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
+   - Optional (for real LLM in traces): add server-side `OPENROUTER_API_KEY` (get free key + use a free model like `openrouter/owl-alpha` at openrouter.ai). The route falls back gracefully to simulation if not set.
    - Deploy.
    - After deploy, copy the production URL (e.g. `https://conductor-yourname.vercel.app`).
    - Update your README and Dora submission with this public URL.
@@ -482,7 +483,8 @@ npm run deploy          # to Mantle mainnet
      - Build Command: `npm run build`
      - Output Directory: `.next`
    - Set the env var `NEXT_PUBLIC_DECISION_LOGGER_ADDRESS=0x40E51Bdc032F31cb394BBCCF63f66Ac65CAd8807`
-   - No LLM keys needed — the `/api/run-conductor` route is self-contained and works out of the box for judges and video.
+   - No LLM keys needed — the `/api/run-conductor` route is self-contained (high-fidelity simulation) and works out of the box for judges and video.
+   - Optional: for *real* LLM-powered reasoning on the public demo, set server-side `OPENROUTER_API_KEY` (free tier models work, e.g. `openrouter/owl-alpha`). The API will automatically use it for richer agent narratives while keeping all numbers 100% deterministic. See web/.env.example.
 
 4. **Video demo tip**:
    - Use a strong goal like "Optimize my portfolio yield with risk no higher than 6.5%, with strong focus on mETH and USDY"

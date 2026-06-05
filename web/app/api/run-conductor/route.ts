@@ -35,6 +35,56 @@ function estimateRisk(allocation: { mETHWeight: number; usdyWeight: number }) {
   return { expectedAPY: Number(blendedAPY.toFixed(2)), estimatedMaxDD: Number(estimatedMaxDD.toFixed(1)), liquidityScore: BASE_LIQUIDITY + allocation.usdyWeight * 0.1 };
 }
 
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+/**
+ * Optional real LLM via OpenRouter (free tier models supported).
+ * Used only for *narrative / reasoning* text. All numbers (allocations, APY, risk)
+ * remain 100% deterministic from the pure portfolio-logic functions above.
+ * Falls back gracefully if key is missing or call fails.
+ */
+async function getOpenRouterReasoning(prompt: string): Promise<string | null> {
+  if (!OPENROUTER_API_KEY) return null;
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://conductor-agent-demo.vercel.app",
+        "X-Title": "Conductor Agent — Mantle Turing Test Hackathon 2026"
+      },
+      body: JSON.stringify({
+        model: "openrouter/owl-alpha",
+        messages: [
+          {
+            role: "system",
+            content: "You are a senior DeFi meta-orchestrator running a verified 5-agent economy on Mantle. You produce concise, professional, slightly self-reflective reasoning. Always ground claims in the provided facts and numbers. Never invent yields, blocks, or allocations. Sound like part of a trustworthy on-chain agent orchestra."
+          },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 320,
+        temperature: 0.7,
+        top_p: 0.9
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error("[OpenRouter] non-ok response", res.status, errText);
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content?.trim();
+    return text && text.length > 20 ? text : null;
+  } catch (err) {
+    console.error("[OpenRouter] call failed, falling back to simulation", err);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   let rawGoal = '';
   try {
@@ -135,6 +185,37 @@ export async function POST(request: NextRequest) {
     const demoMoePairs = 42;
     const demoLivePrices = { mETH: '2456.78', mnt: '0.72' }; // simulated from mantle-agent-kit-sdk Pyth
 
+    // === Optional real LLM enrichment (OpenRouter free tier) ===
+    // IMPORTANT: All numbers (weights, APY, DD, liquidity) remain 100% deterministic from the pure functions above.
+    // LLM is used *only* to generate more natural, reflective, professional narrative text for the agent trace.
+    const llmUsed = !!OPENROUTER_API_KEY;
+    if (llmUsed) {
+      try {
+        const finalConductorPrompt = `User goal: "${trimmed}"
+
+Deterministic facts (do not change or invent any numbers):
+- Suggested allocation: ${Math.round(suggested.mETHWeight * 100)}% mETH / ${Math.round(suggested.usdyWeight * 100)}% USDY
+- Expected blended APY: ${metrics.expectedAPY}%
+- Estimated max drawdown: ${metrics.estimatedMaxDD}%
+- Risk cap from user: ${userRiskCap}%
+- Validation message: ${validation.message}
+- Research context: block ${demoResearchBlock}, mETH supply ~${demoMETHSupply}, Moe pairs ${demoMoePairs}, live prices injected via SDK simulation.
+
+Write a concise (70-110 words), professional final Conductor reasoning as the meta-orchestrator of a 5-agent ERC-8004 economy on Mantle. 
+Mention: delegation to Researcher (live data), Executor, RWA Optimizer and Risk Manager (gate), use of deterministic portfolio-logic, service fees between agents, ERC-8004 reputation feedback, and that the full decision + metrics will be immutably logged on-chain via DecisionLogger.
+Add a short self-reflection on the quality of the plan. 
+Do not invent any numbers. Sound thoughtful and trustworthy.`;
+
+        const llmText = await getOpenRouterReasoning(finalConductorPrompt);
+        if (llmText) {
+          last.reasoning = llmText;
+          last.result = `Orchestra complete. Allocation ${Math.round(suggested.mETHWeight * 100)}% mETH / ${Math.round(suggested.usdyWeight * 100)}% USDY. estAPY ${metrics.expectedAPY}%. Full trace + on-chain proof ready. (Real LLM via OpenRouter)`;
+        }
+      } catch (e) {
+        console.error("LLM enrichment failed, using simulation", e);
+      }
+    }
+
     return NextResponse.json({
       goal: trimmed,
       decisions,
@@ -149,7 +230,9 @@ export async function POST(request: NextRequest) {
       mETHSupply: demoMETHSupply,
       moePairs: demoMoePairs,
       livePrices: demoLivePrices,
-      _meta: { resilient: true, liveRpc: true, sdk: 'mantle-agent-kit-sdk (Pyth prices + Moe)', reputation: 'ERC-8004 giveFeedback enabled in full trace' }
+      _meta: { resilient: true, liveRpc: true, sdk: 'mantle-agent-kit-sdk (Pyth prices + Moe)', reputation: 'ERC-8004 giveFeedback enabled in full trace' },
+      llmUsed,
+      llmProvider: llmUsed ? "openrouter (free tier)" : "high-fidelity simulation"
     });
   } catch (error: unknown) {
     const msg = (error as Error)?.message || 'Unexpected error while running Conductor orchestration';
@@ -162,6 +245,8 @@ export async function POST(request: NextRequest) {
       summary: 'Run failed. The system stayed stable — try a simpler goal or check console.',
       computed: { mETHWeight: 0.6, usdyWeight: 0.4, expectedAPY: (0.6 * RESEARCH_DATA.mETH_APY + 0.4 * RESEARCH_DATA.USDY_APY), estimatedMaxDD: 6.0 },
       partial: true,
+      llmUsed: false,
+      llmProvider: "high-fidelity simulation (fallback)",
     }, { status: 200 });
   }
 }

@@ -303,6 +303,12 @@ export default function ConductorControlCenter() {
         addLog(`🔗 Research block on Mantle: ${data.researchBlock} (live RPC read${data.mETHSupply ? `, mETH supply ~${data.mETHSupply}` : ''}${data.moePairs ? `, Moe ${data.moePairs} pairs` : ''}${pricesNote})`);
       }
 
+      if (data?.llmUsed) {
+        addLog(`🧠 Real LLM via ${data.llmProvider || "OpenRouter"} (narrative only — numbers remain deterministic)`);
+      } else {
+        addLog(`🧠 High-fidelity simulation (deterministic portfolio-logic + rich agent-style reasoning)`);
+      }
+
       // If live on-chain mode, refresh the ledger after run to show the "trail" context (silent)
       if (IS_LIVE_ONCHAIN) {
         fetchOnchainLedger(true).catch(() => {});
@@ -676,7 +682,10 @@ Explorer: ${MANTLESCAN}/tx/${fakeTx.replace('...', '')}`;
                         version: "v1.0-hackathon-ready",
                         chain: "Mantle Mainnet (5000)",
                         decisionLogger: "on-chain via API",
-                        note: "Full verifiable audit report. All reasoning is deterministic + sourced from live Mantle data + SDK. Use this JSON as proof for audits, DAOs, or personal records. Verify on-chain via DecisionLogger and 8004scan.",
+                        llm: lastRunResponse?.llmUsed 
+                          ? { used: true, provider: lastRunResponse?.llmProvider || "openrouter" } 
+                          : { used: false, provider: "high-fidelity deterministic simulation" },
+                        note: "Full verifiable audit report. Core numbers (allocation, risk, APY) are always from pure deterministic portfolio-logic. LLM (when enabled) is used only for richer narrative/reasoning. Verify on-chain via DecisionLogger and 8004scan.",
                       },
                       summary: {
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any

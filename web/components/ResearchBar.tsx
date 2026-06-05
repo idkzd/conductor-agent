@@ -18,6 +18,8 @@ export function ResearchBar({ lastRunResponse, computedAllocation, localAllocati
   const livePrices = (lastRunResponse?.livePrices as Record<string, unknown>) || { mETH: 'n/a (run to fetch)', mnt: 'n/a' };
   const researchBlock = lastRunResponse?.researchBlock;
   const moePairs = lastRunResponse?.moePairs;
+  const llmUsed = !!lastRunResponse?.llmUsed;
+  const llmProvider = (lastRunResponse?.llmProvider as string) || (llmUsed ? "openrouter" : "simulation");
 
   // Compute research snapshot blended for comparison (uses same yields as logic)
   const researchBlended = (RESEARCH_DATA.mETH_APY * 0.63 + RESEARCH_DATA.USDY_APY * 0.37).toFixed(2);
@@ -61,6 +63,9 @@ export function ResearchBar({ lastRunResponse, computedAllocation, localAllocati
           <span className="text-emerald-400/60">●</span> mETH Protocol • Ondo RWA • 
           <span className="px-1.5 py-px bg-amber-500/10 text-amber-400 rounded text-[9px]">SDK Pyth</span>
           <span className="px-1.5 py-px bg-purple-500/10 text-purple-400 rounded text-[9px]">8004 Rep</span>
+          {llmUsed && (
+            <span className="px-1.5 py-px bg-emerald-500/10 text-emerald-400 rounded text-[9px] font-medium">Real LLM (OpenRouter)</span>
+          )}
         </div>
       </div>
 
